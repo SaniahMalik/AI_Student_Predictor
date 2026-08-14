@@ -9,6 +9,7 @@ import pandas as pd  # ✅ DataFrames ke liye Pandas
 from sklearn.linear_model import LinearRegression
 import uuid
 import joblib  # 👈 Model load karne ke liye
+import os
 
 app = FastAPI()
 
@@ -43,14 +44,11 @@ except Exception as e:
     ml_model.fit(X_train, y_train)
 
 def get_db_connection():
+    db_url = os.getenv("DATABASE_URL")
     return psycopg2.connect(
-        host="localhost", 
-        database="student_predictor",
-        user="postgres", 
-        password="042302",
+        db_url,
         cursor_factory=RealDictCursor
     )
-
 class AuthRequest(BaseModel):
     username: str
     password: str
