@@ -100,9 +100,13 @@ function App() {
     else if (finalScore >= 55) grade = "C";
 
     // 5. Generate Dynamic Recommendations
+   // 5. Generate Dynamic Recommendations
     const recs = [];
-    if (parseInt(attendance) < 75) recs.append(`Critical! Attendance is ${attendance}%. Raise it to avoid exam detention.`);
-    else recs.push("Attendance matrix status is healthy.");
+    if (parseInt(attendance) < 75) {
+      recs.push(`Critical! Attendance is ${attendance}%. Raise it to avoid exam detention.`);
+    } else {
+      recs.push("Attendance matrix status is healthy.");
+    }
 
     if (parseFloat(studyHours) < 4) recs.push("Daily study execution focus is low. Allocate minimum 2 hours more.");
     
@@ -128,10 +132,31 @@ function App() {
     }
   }, [attendance, cgpa, studyHours, extracurricular, subjectsList]);
 
-  const handleAuth = async (e) => {
+ const handleAuth = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
-    // Bypassing directly to dashboard preview for instant verification
-    setUserId("secured_dev_session");
+    
+    const API_URL = import.meta.env.VITE_API_URL;
+    const endpoint = isLoginMode ? "/api/auth/login" : "/api/auth/signup";
+
+    try {
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(isLoginMode ? "Login Successful!" : "Signup Successful!");
+        setUserId(data.user_id || "secured_dev_session");
+      } else {
+        alert(data.detail || "Authentication failed!");
+      }
+    } catch (error) {
+      console.p("Error connecting to backend:", error);
+      alert("Server error or connection failed.");
+    }
   };
 
   return (
